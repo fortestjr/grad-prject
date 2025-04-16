@@ -1,0 +1,11 @@
+dnspython:
+
+Essential for performing DNS queries and resolving domain names.
+
+Handles all the low-level DNS resolution tasks, including error handling for common DNS issues.
+
+typing:
+
+Improves code readability and maintainability by adding type hints.
+
+Helps developers understand the expected input and output types of functions.

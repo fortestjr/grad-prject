@@ -1,0 +1,3 @@
+scapy.all - For network scanning and packet manipulation.
+
+typing - For type hints (e.g., List, Dict).

@@ -1,0 +1,11 @@
+socket:
+
+What it does: Provides low-level networking interfaces for creating and managing network connections.
+
+Role in the script: Used to test if a port is open or blocked by attempting to establish a TCP or UDP connection to the target.
+
+typing:
+
+What it does: Provides type hints for better code readability and maintainability.
+
+Role in the script: Used to specify the types of function arguments and return values (e.g., List[Dict])
