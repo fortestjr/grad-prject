@@ -2,7 +2,7 @@ import socket
 from typing import Tuple
 from socket import getservbyport
 import logging
-import argparse
+import sys
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -81,18 +81,27 @@ def port_scanner(target: str, start_port: int, end_port: int) -> str:
         return f"Scan failed: {str(e)}"
 
 if __name__ == "__main__":
-    # Set up argument parser
-    parser = argparse.ArgumentParser(description="Network Port Scanner")
-    parser.add_argument("target", help="Target IP address or domain name")
-    parser.add_argument("start_port", type=int, help="Start of port range (e.g., 1)")
-    parser.add_argument("end_port", type=int, help="End of port range (e.g., 1000)")
-    args = parser.parse_args()
-
-    # Validate ports
-    if not (1 <= args.start_port <= 65535 and 1 <= args.end_port <= 65535 and args.start_port <= args.end_port):
-        print("Error: Ports must be between 1 and 65535, and start_port must be <= end_port.")
-        exit(1)
-
-    # Run scanner and print results
-    result = port_scanner(args.target, args.start_port, args.end_port)
-    print(result)
+    if len(sys.argv) != 3:
+        print("Usage: port_scanner.py <target> <port-range>")
+        print("Example: port_scanner.py example.com 20-80")
+        sys.exit(1)
+    
+    target = sys.argv[1]
+    port_range = sys.argv[2]
+    
+    try:
+        # Parse port range (expecting format like "20-80")
+        start_port, end_port = map(int, port_range.split('-'))
+        
+        # Validate ports
+        if not (1 <= start_port <= 65535 and 1 <= end_port <= 65535 and start_port <= end_port):
+            print("Error: Ports must be between 1 and 65535, and start_port must be <= end_port.")
+            sys.exit(1)
+            
+        # Run scanner and print results
+        result = port_scanner(target, start_port, end_port)
+        print(result)
+        
+    except ValueError:
+        print("Error: Invalid port range format. Expected format: start-end (e.g., 20-80)")
+        sys.exit(1)

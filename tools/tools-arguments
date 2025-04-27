@@ -28,7 +28,7 @@ port-scanning.py
 
 Required arguments: target_ip, port_range
 
-Example usage: python port-scanning.py 192.168.1.1 22,80,443
+Example usage: python port-scanning.py 192.168.1.1 20 80
 
 
 protocol-ana.py

@@ -1,94 +1,108 @@
-import { spawn } from 'child_process'
 
-import dbConnection from '../db/db.js'
-import { rejects } from 'assert'
-const db = await dbConnection()
+import { spawn } from "child_process";
+
+import dbConnection from "../db/db.js";
+import { rejects } from "assert";
+const db = await dbConnection();
 
 export class PythonService {
-    constructor(timeout){
-        this.timeout = timeout || 30000
+    constructor(timeout) {
+        this.timeout = timeout || 3000000;
     }
 
-// This function should return the path to the script
+    // This function should return the path to the script
 
     async #getScriptPath(scriptName) {
         // Fetch the script from the database
-        const script = await db.get('select path from SecurityTools where name = ?', [scriptName])
+        const script = await db.get(
+            "select path from SecurityTools where name = ?",
+            [scriptName]
+        )
         // Check if the script exists
-
+        console.log(`Query result:`, script)
         if (!script) {
-            throw new Error(`Script ${scriptName} not found in the database`)
+            throw new Error(`Script ${scriptName} not found in the database`);
         }
         return script.path
     }
 
     async #runPythonScript(scriptPath, args = []) {
-
-        const controller = new AbortController()
-        const timeoutId = setTimeout(() => { controller.abort() } , this.timeout)
-
-        let pythonProcess = null
+        let pythonProcess;
+        let timeoutId;
         
-        try{
-    
-            pythonProcess = spawn('python3' , [scriptPath , ...args], {
-                signal : controller.signal
-            })
-            let output = ''
-            let errorOutput = ''
-
-            pythonProcess.stdout.on ('data' , (data)=>{
-                output += data.toString()
+        try {
+            // const scriptPath = await this.#getScriptPath(scriptName);
+            const controller = new AbortController();
+            timeoutId = setTimeout(() => controller.abort(), this.timeout);
             
-            })
+            const pythonBinary = '/home/ahmedjr/grad-proj/tools/cymatvenv/bin/python3'
 
-            pythonProcess.stderr.on('data' , (data)=>{
-                errorOutput += data.toString()
-            })
+            pythonProcess = spawn(pythonBinary, [scriptPath, ...args], {
+                signal: controller.signal
+            });
 
+            let fullOutput = '';
+            
+            // Capture all output exactly as printed
+            pythonProcess.stdout.on('data', (data) => {
+                const text = data.toString();
+                process.stdout.write(text); // Mirror to console
+                fullOutput += text;
+            });
+
+            pythonProcess.stderr.on('data', (data) => {
+                const text = data.toString();
+                process.stderr.write(text); // Mirror errors to console
+                fullOutput += text;
+            });
 
             const exitCode = await new Promise((resolve, reject) => {
                 pythonProcess.on('close', (code) => {
+                    clearTimeout(timeoutId);
                     resolve(code);
-                })
-    
-                pythonProcess.on('error', (err) => {
-                    reject(err);
-                })
-            })
-
-            clearTimeout(timeoutId)
-            console.log("Python script output:", output)
+                });
+                pythonProcess.on('error', reject);
+            });
 
             if (exitCode !== 0) {
-                throw new Error(`Script failed (code ${exitCode}): ${errorOutput}`)
+                throw new Error(`Process exited with code ${exitCode}`);
             }
-        
-            return output  // Return the output of the script
 
-        } catch (err) {
-            clearTimeout(timeoutId);
-            if (err.name === 'AbortError') {
-                throw new Error(`Script timed out after ${this.timeout}ms`)
-            }
-            throw err 
-        }finally {
-            // Ensure cleanup if something throws unexpectedly
-            if (pythonProcess) {
-                pythonProcess.kill()
-            }
+            return fullOutput;
+
+        } catch (error) {
+            if (timeoutId) clearTimeout(timeoutId);
+            if (pythonProcess) pythonProcess.kill();
+            
+            console.error('Script execution error:', error);
+            throw error;
         }
     }
 
     async executeScript(scriptName, args = []) {
         try {
-            const scriptPath = await this.#getScriptPath(scriptName)
-            return await this.#runPythonScript(scriptPath, args)
+            const scriptPath = await this.#getScriptPath(scriptName);
+            return await this.#runPythonScript(scriptPath, args);
         } catch (err) {
+            if (err.name === "AbortError") {
+                throw new Error(`Script timed out after ${this.timeout}ms`)
+            }
             throw err
-        }
-    } 
+    }
 }
+
+}
+
+
+
+
+
+
+
+
+
+
+
 
 // Example usage
 
