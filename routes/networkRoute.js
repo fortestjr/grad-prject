@@ -17,7 +17,7 @@ import {
 const router = express.Router();
 
 // DNS Hostname Scanning
-router.get("/dns", dnsScan)
+router.get("/dns/", dnsScan)
 
 // Firewall and ACL Testing
 router.get("/firewall", firewallTest)
@@ -32,7 +32,7 @@ router.get("/portscan", portScan)
 router.get("/protocol", protocolScan)
 
 // Service Detection
-router.get("/service", serviceDetect)
+router.get("/services", serviceDetect)
 
 // Subnet and VLAN Scanning
 router.get("/subnet", subnetScan)

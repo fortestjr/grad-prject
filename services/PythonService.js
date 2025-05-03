@@ -7,7 +7,7 @@ const db = await dbConnection();
 
 export class PythonService {
     constructor(timeout) {
-        this.timeout = timeout || 3000000;
+        this.timeout = timeout || 300000000;
     }
 
     // This function should return the path to the script

@@ -2,9 +2,19 @@
 import { PythonService } from '../services/PythonService.js'
 
 
+/*
+ex:-python script.py google.com
+
+input require 1 
+1- domain or ip (optinal  choose one from them ) */
+
 const dnsScan = async (req, res) => {
     try {
-        const { domain } = req.query;
+        const domain = req.body.domain || req.query.domain
+        console.log(req.body)
+        console.log(req.query)
+        
+        console.log(`Domain: ${domain}`)
         
         if (!domain) {
             return res.status(400).send('Domain parameter is required');
@@ -22,9 +32,13 @@ const dnsScan = async (req, res) => {
     }
 };
 
+/*
+format :- python script.py <target> <protocol> <ports>
+ex:-python script.py google.com tcp 80,443,22
+*/
 const firewallTest = async (req, res) => {
     try {
-        const { target, protocol, ports } = req.query;
+        const { target, protocol, ports } = req.body || req.query
         
         if (!target || !protocol || !ports) {
             return res.status(400).send('Target, protocol, and ports parameters are required');
@@ -42,9 +56,10 @@ const firewallTest = async (req, res) => {
     }
 };
 
+// input :_ target ip range <CIDR_RANGE> , ex:-python network_scanner.py 192.168.1.0/24
 const ipScan = async (req, res) => {
     try {
-        const { cidr } = req.query;
+        const  cidr  = req.body?.cidr || req.query?.cidr
         
         if (!cidr) {
             return res.status(400).send('CIDR parameter is required');
@@ -62,9 +77,14 @@ const ipScan = async (req, res) => {
     }
 };
 
+/*input require 2  
+1- ip or domain (optinal you can write ip or domain )
+2- port range  */
+
 const portScan = async (req, res) => {
     try {
-        const { target, range } = req.query;
+        const { target, range } = req.body || req.query
+        console.log(req.query)
         
         if (!target || !range) {
             return res.status(400).send('Target and range parameters are required');
@@ -82,9 +102,10 @@ const portScan = async (req, res) => {
     }
 };
 
+// input :- ip or domain 
 const protocolScan = async (req, res) => {
     try {
-        const { target } = req.query;
+        const { target } = req.body || req.query;
         
         if (!target) {
             return res.status(400).send('Target parameter is required');
@@ -102,21 +123,30 @@ const protocolScan = async (req, res) => {
     }
 };
 
+/*format:- python service_scanner.py <target>
+format 2:- python service_scanner.py <target> --version-detection
+
+ex :- python service_scanner.py example.com
+
+input 2 :- 
+1 - ip or domain 
+2- enable service version detection (optinal click checkbox)*/
+
 const serviceDetect = async (req, res) => {
     try {
-        const { target, versionDetection } = req.query;
-        
+        const { target, versionDetection } = req.body || req.query
+
         if (!target) {
             return res.status(400).send('Target parameter is required');
         }
 
         const args = [target];
         if (versionDetection === 'true') {
-            args.push('--version-detection');
+            args.push('--version-detection')
         }
 
         const pythonService = new PythonService();
-        const rawOutput = await pythonService.executeScript('Service Detection', args);
+        const rawOutput = await pythonService.executeScript('Service Detection', args)
         
         res.setHeader('Content-Type', 'text/plain');
         return res.send(rawOutput);
@@ -127,16 +157,20 @@ const serviceDetect = async (req, res) => {
     }
 };
 
+/*
+format:- python segmentation_scanner.py <subnet> <vlan_id>
+ex:-python segmentation_scanner.py 192.168.1.0/24 10
+input :- subnet or vlan identifier */
 const subnetScan = async (req, res) => {
     try {
-        const { subnet, vlan } = req.query;
+        const { subnet, vlan } = req.body || req.query
         
         if (!subnet || !vlan) {
             return res.status(400).send('Subnet and VLAN parameters are required');
         }
 
         const pythonService = new PythonService();
-        const rawOutput = await pythonService.executeScript('Subnet and VLAN Scanning', [subnet, vlan]);
+        const rawOutput = await pythonService.executeScript('Subnet and VLAN Scanning', [subnet, vlan])
         
         res.setHeader('Content-Type', 'text/plain');
         return res.send(rawOutput);
@@ -149,19 +183,19 @@ const subnetScan = async (req, res) => {
 
 const latencyTest = async (req, res) => {
     try {
-        const { target, count } = req.query;
+        const { target, count } = req.body || req.query
         
         if (!target) {
             return res.status(400).send('Target parameter is required');
         }
 
-        const args = [target];
+        const args = [target]
         if (count) {
-            args.push('-c', count);
+            args.push('-c', count)
         }
 
         const pythonService = new PythonService();
-        const rawOutput = await pythonService.executeScript('Latency Testing', args);
+        const rawOutput = await pythonService.executeScript('Latency Testing', args)
         
         res.setHeader('Content-Type', 'text/plain');
         return res.send(rawOutput);

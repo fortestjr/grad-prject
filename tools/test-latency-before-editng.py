@@ -77,13 +77,10 @@ def main(target, count=10):
         print(f"Packet Loss: {packet_loss:.2f}%\n")
 
 if __name__ == "__main__":
-    # Set up argument parser with both positional and optional count
+    # Set up argument parser
     parser = argparse.ArgumentParser(description="Network Performance Testing Tool")
     parser.add_argument("target", help="Target IP address or domain name")
-    parser.add_argument("count", nargs='?', type=int, default=10, help="Number of pings to send (positional, default: 10)")
-    parser.add_argument("-c", "--count", dest="count_flag", type=int, help="Number of pings to send (flag-style)")
+    parser.add_argument("-c", "--count", type=int, default=10, help="Number of pings to send (default: 10)")
     args = parser.parse_args()
 
-    # Use flag-style count if provided, otherwise use positional count
-    final_count = args.count_flag if args.count_flag is not None else args.count
-    main(args.target, final_count)
+    main(args.target, args.count)
