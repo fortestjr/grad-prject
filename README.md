@@ -1,6 +1,4 @@
 
-
-```markdown
 ## Network API Collection (Postman) & Security Tools Integration
 
 This document combines API documentation with security tool database configuration for network analysis tools.
@@ -21,7 +19,7 @@ This document combines API documentation with security tool database configurati
 #### 1. IP Scanning (`/ipscan`)
 ```
 
-{"cidr": "192.168.1.1/24"}
+##Body {"cidr": "192.168.1.1/24"}
 
 ```
 **Associated Tool:** IP Scanning (detects live hosts)
@@ -29,7 +27,7 @@ This document combines API documentation with security tool database configurati
 #### 2. Firewall Check (`/firewall`)
 ```
 
-{"target": "google.com", "protocol": "tcp", "ports": "80,443,22"}
+##Body {"target": "google.com", "protocol": "tcp", "ports": "80,443,22"}
 
 ```
 **Associated Tool:** Firewall and ACL Testing
@@ -37,7 +35,7 @@ This document combines API documentation with security tool database configurati
 #### 3. DNS Lookup (`/dns`)
 ```
 
-{"domain": "192.168.1.1"}
+##Body {"domain": "192.168.1.1"}
 
 ```
 **Associated Tool:** DNS Hostname Scanning
@@ -45,7 +43,7 @@ This document combines API documentation with security tool database configurati
 #### 4. Port Scanning (`/portscan`)
 ```
 
-{"target": "google.com", "range": "20-80"}
+##Body {"target": "google.com", "range": "20-80"}
 
 ```
 **Associated Tool:** Port Scanning
@@ -53,7 +51,7 @@ This document combines API documentation with security tool database configurati
 #### 5. Protocol Detection (`/protocol`)
 ```
 
-{"target": "google.com"}
+##Body {"target": "google.com"}
 
 ```
 **Associated Tool:** Protocol Analysis
@@ -61,7 +59,7 @@ This document combines API documentation with security tool database configurati
 #### 6. Subnet Configuration (`/subnet`)
 ```
 
-{"subnet": "192.168.1.0/24", "vlan": "10"}
+##Body {"subnet": "192.168.1.0/24", "vlan": "10"}
 
 ```
 **Associated Tool:** Subnet and VLAN Scanning
@@ -69,7 +67,7 @@ This document combines API documentation with security tool database configurati
 #### 7. Service Detection (`/services`)
 ```
 
-{"target": "192.168.1.1", "versionDetection": "true"}
+##Body {"target": "192.168.1.1", "versionDetection": "true"}
 
 ```
 **Associated Tool:** Service Detection
@@ -99,6 +97,7 @@ INSERT OR IGNORE INTO SecurityTools (name, description, executionCmd, path, cate
 'grad-proj\\tools\\dns-hostname-scanning.py',
 (SELECT id FROM Categories WHERE name='Network')
 ),
+
 (
 'Firewall and ACL Testing',
 'Checks if ports are blocked by firewalls',
@@ -106,6 +105,7 @@ INSERT OR IGNORE INTO SecurityTools (name, description, executionCmd, path, cate
 'grad-proj\\tools\\firewall-and-acl-testing.py',
 (SELECT id FROM Categories WHERE name='Network')
 ),
+
 (
 'IP Scanning',
 'Scans IP ranges for live hosts',
@@ -113,6 +113,7 @@ INSERT OR IGNORE INTO SecurityTools (name, description, executionCmd, path, cate
 'grad-proj\\tools\\ipscanning.py',
 (SELECT id FROM Categories WHERE name='Network')
 ),
+
 (
 'Port Scanning',
 'Scans ports for open services',
@@ -120,6 +121,7 @@ INSERT OR IGNORE INTO SecurityTools (name, description, executionCmd, path, cate
 'grad-proj\\tools\\port-scanning.py',
 (SELECT id FROM Categories WHERE name='Network')
 ),
+
 (
 'Protocol Analysis',
 'Detects network protocols and security risks',
@@ -127,6 +129,7 @@ INSERT OR IGNORE INTO SecurityTools (name, description, executionCmd, path, cate
 'grad-proj\\tools\\protocol-ana.py',
 (SELECT id FROM Categories WHERE name='Network')
 ),
+
 (
 'Service Detection',
 'Identifies running services and versions',
@@ -134,6 +137,7 @@ INSERT OR IGNORE INTO SecurityTools (name, description, executionCmd, path, cate
 'grad-proj\\tools\\service-detect.py',
 (SELECT id FROM Categories WHERE name='Network')
 ),
+
 (
 'Subnet and VLAN Scanning',
 'Detects VLAN configuration issues',
@@ -141,6 +145,7 @@ INSERT OR IGNORE INTO SecurityTools (name, description, executionCmd, path, cate
 'grad-proj\\tools\\subnet-and-vlan-scanning.py',
 (SELECT id FROM Categories WHERE name='Network')
 ),
+
 (
 'Latency Testing',
 'Measures network latency/packet loss',
@@ -156,8 +161,7 @@ INSERT OR IGNORE INTO SecurityTools (name, description, executionCmd, path, cate
 
 1. **API-Tool Mapping:** Each API endpoint corresponds to a specific Python tool
 2. **Path Requirements:** Ensure Windows-style path separators (`\\`) in database entries
-3. **Category Dependency:** Requires existing 'Network' entry in Categories table
-4. **Execution:** All tools run with Python 3.6+ using `python [path] [parameters]`
+3. **Execution:** All tools run with Python 3.6+ using `python [path] [parameters]`
 
 Use `POSTMAN_COLLECTION.json` for API testing and execute the SQL script to populate tool configurations.
 ```
