@@ -88,6 +88,9 @@ This document combines API documentation with security tool database configurati
 ### SQL Schema Configuration
 ```
 
+INSERT INTO Categories (name, description) VALUES ('Network', 'Tools related to network security and scanning');
+
+
 INSERT OR IGNORE INTO SecurityTools (name, description, executionCmd, path, categoryId) VALUES
 (
 'DNS Hostname Scanning',
