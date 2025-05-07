@@ -35,7 +35,7 @@ export class PythonService {
             const controller = new AbortController();
             timeoutId = setTimeout(() => controller.abort(), this.timeout);
             
-            const pythonBinary = '/home/ahmedjr/grad-proj/tools/cymatvenv/bin/python3'
+            const pythonBinary = '/home/ahmedjr/cymatvenv/bin/python3'
 
             pythonProcess = spawn(pythonBinary, [scriptPath, ...args], {
                 signal: controller.signal
