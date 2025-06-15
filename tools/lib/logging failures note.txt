@@ -1,0 +1,12 @@
+input example: Please enter the path to the directory containing Python code to analyze:
+/myapp
+
+output:  Insufficient logging and monitoring issues found:
+- /myapp/auth.py: No logging module imported.
+- /myapp/auth.py: Function 'login' lacks logging for critical operation.
+- /myapp/auth.py: Try-except block at line 3 lacks exception logging.
+- /myapp/auth.py: No monitoring libraries (e.g., Prometheus, StatsD) detected.
+- /myapp/user_management.py: No logging module imported.
+- /myapp/user_management.py: No monitoring libraries (e.g., Prometheus, StatsD) detected.
+- /myapp/api.py: No logging module imported.
+- /myapp/api.py: No monitoring libraries (e.g., Prometheus, StatsD) detected.

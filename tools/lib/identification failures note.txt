@@ -1,0 +1,26 @@
+libraries needs to be installed: pip install requests
+
+
+example input: C:/Users/moham/AppData/Local/Programs/Python/Python313/python.exe "c:/Users/moham/OneDrive/سطح المكتب/Identification Failures/test1.py" https://google.com                          
+
+
+output: Authentication Vulnerability Report for https://google.com
+==================================================
+
+=== Brute-Force Test ===
+[INFO] Failed attempt: admin:admin
+[INFO] Failed attempt: admin:password
+[INFO] Failed attempt: admin:123456
+[INFO] Failed attempt: user:admin
+[INFO] Failed attempt: user:password
+[INFO] Failed attempt: user:123456
+
+=== Session Cookie Security Test ===
+[VULNERABILITY] Cookie 'AEC' lacks Secure flag
+[VULNERABILITY] Cookie 'AEC' lacks HttpOnly flag
+[VULNERABILITY] Cookie 'NID' lacks Secure flag
+[VULNERABILITY] Cookie 'NID' lacks HttpOnly flag
+
+=== Recommendations ===
+- Ensure all session cookies have the Secure flag to enforce HTTPS.
+- Set HttpOnly flag on session cookies to prevent client-side script access.

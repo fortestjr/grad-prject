@@ -1,0 +1,26 @@
+Input Format:- 
+python scanner.py <url> [username] [password] [--verify-ssl]
+
+
+ex:-
+python scanner.py http://example.com
+
+python scanner.py https://test.site myadmin P@ssw0rd123
+
+
+python scanner.py https://prod.site --verify-ssl
+
+python scanner.py https://192.168.1.1
+
+
+lib used 
+:-
+
+requests
+urllib.parse
+socket
+ssl
+requests.packages.urllib3
+
+
+

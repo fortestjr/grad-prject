@@ -1,0 +1,12 @@
+libraries needs to be installed :pip install requests
+
+
+input must be JSON configuration in the same directory as the script
+
+ex output: Trust issue: Inaccessible URL for software update https://example.com/updates/update.pkg
+Trust issue: No integrity verification (e.g., hash or signature) for software update https://example.com/updates/update.pkg
+Trust issue: Untrusted source example.com for software update https://example.com/updates/update.pkg
+Trust issue: Critical data https://example.com/data/sensitive.db lacks encryption metadata
+Trust issue: Critical data https://example.com/data/sensitive.db lacks access control metadata
+Trust issue: No integrity verification (e.g., hash or signature) for CI/CD artifact https://example.com/builds/app.bin
+Trust issue: Untrusted source github.com for CI/CD artifact https://example.com/builds/app.bin

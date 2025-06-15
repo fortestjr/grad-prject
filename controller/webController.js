@@ -1,5 +1,6 @@
 
 import { PythonService } from '../services/PythonService.js'
+import fs from "fs/promises"
 
 // Input Method: The script expects a single command-line argument: a URL. ex.(python script.py http://example.com)
 const SSRFScanController = async (req, res) => {
@@ -15,18 +16,134 @@ const SSRFScanController = async (req, res) => {
         }
 
         const pythonService = new PythonService()
-        const rawOutput = await pythonService.executeScript('SSRF Vulnerability Testing', [domain])
+        const toolOutput = await pythonService.executeScript('SSRF Vulnerability Testing', [domain])
         
-        res.setHeader('Content-Type', 'text/plain')
-        return res.send(rawOutput)
+        res.setHeader('Content-Type', 'application/json')
+        return res.status(200).json({result : JSON.parse(toolOutput)})
     } catch (error) {
         console.error('DNS scan failed:', error)
-        res.setHeader('Content-Type', 'text/plain')
-        return res.status(500).send(`Error: ${error.message}`)
+        res.setHeader('Content-Type', 'application/json')
+        return res.status(500).json({Error: error.message})
     }
 }
+
+const webConfigScanController = async (req, res) => {
+    try {
+        const { url, username, password, verify_ssl } = req.body
+
+        if (!url) {
+            return res.status(400).send('Domain parameter is required')
+        }
+
+        console.log(`Scanning domain: ${url}`)
+
+        const args = [url]
+
+        // Optional args
+        if (username) args.push(username);
+        if (password) args.push(password);
+        if (verify_ssl === true || verify_ssl === 'true') args.push('--verify-ssl');
+
+        const pythonService = new PythonService()
+        const toolOutput = await pythonService.executeScript('Web Config Scanner', args)
+
+        res.setHeader('Content-Type', 'application/json')
+        return res.status(200).json({result : JSON.parse(toolOutput)})
+    } catch (error) {
+        console.error('Web config scan failed:', error)
+        res.setHeader('Content-Type', 'application/json')
+        return res.status(500).json({Error: error.message})
+    }
+}
+/*
+
+Method: POST
+
+URL: http://localhost:3000/web/vlun
+
+Body Type: form-data
+
+Key: file → File Upload Field
+
+*/
+const vlunController = async (req, res) => {
+    try {
+        // Multer adds `req.file`
+        if (!req.file) {
+            return res.status(400).send('File is required');
+        }
+
+        const filePath = req.file.path // Full path to uploaded file
+        console.log(`Uploaded file path: ${filePath}`)
+
+        const args = []
+        args.push("--file")
+        args.push(filePath)
+
+        const pythonService = new PythonService()
+        const toolOutput = await pythonService.executeScript('vuln', [filePath])
+
+        res.setHeader('Content-Type', 'application/json')
+
+        // After tool runs successfully delete file
+
+        await fs.unlink(filePath)
+        return res.status(200).json({result : JSON.parse(toolOutput)})
+    } catch (error) {
+        console.error('Vulnerability scan failed:', error)
+        res.setHeader('Content-Type', 'application/json')
+        return res.status(500).json({Error: error.message})
+    }
+}
+
+const cryptoScanController = async (req, res) => {
+    try {
+        // input = string or url
+        const { input } = req.body
+        if(!input){
+            return res.status(400).send('Input parameter is required')
+        }
+        console.log(`Scanning input: ${input}`)
+        const pythonService = new PythonService()
+        const toolOutput = await pythonService.executeScript('crypto', [input])
+        
+        res.setHeader('Content-Type', 'text/plain')
+        return res.status(200).json({result : JSON.parse(toolOutput)})
+    }catch(error){
+        console.log('Crypto Scann Failed' , error)
+        res.setHeader('Content-Type', 'application/json')
+        return res.status(500).json({Error: error.message})
+    }
+}
+
+// design-checker
+const designCheckerController =  async (req, res) => {
+    try {
+        // input = string or url
+        const { design } = req.body
+        if(!design){
+            return res.status(400).send('design parameter is required')
+        }
+        console.log(`Scanning design: ${design}`)
+        const pythonService = new PythonService()
+        const toolOutput = await pythonService.executeScript('design-checker', [design])
+        
+        res.setHeader('Content-Type', 'application/json')
+        return res.status(200).json({result : JSON.parse(toolOutput)})
+    }catch(error){
+        console.log('Crypto Scann Failed' , error)
+        res.setHeader('Content-Type', 'application/json')
+        return res.status(500).json({Error: error.message})
+    }
+}
+
+// Exporting the controllers 
 export {
-    SSRFScanController
+    SSRFScanController , 
+    webConfigScanController ,
+    vlunController , 
+    cryptoScanController , 
+    designCheckerController
 }
 
 
