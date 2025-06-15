@@ -1,6 +1,7 @@
 import os
 import re
 import ast
+import json
 
 class LoggingMonitorChecker:
     def __init__(self, directory):
@@ -19,19 +20,33 @@ class LoggingMonitorChecker:
             with open(file_path, 'r', encoding='utf-8') as file:
                 content = file.read()
         except Exception as e:
-            self.issues.append(f"{file_path}: Unable to read file ({str(e)}).")
+            self.issues.append({
+                "file": file_path,
+                "issue": "Unable to read file",
+                "details": str(e),
+                "severity": "error"
+            })
             return
 
         # Check for logging module import
         has_logging_import = bool(self.logging_import_pattern.search(content))
         if not has_logging_import:
-            self.issues.append(f"{file_path}: No logging module imported.")
+            self.issues.append({
+                "file": file_path,
+                "issue": "No logging module imported",
+                "severity": "warning"
+            })
 
         # Parse the file to analyze its AST
         try:
             tree = ast.parse(content)
         except SyntaxError:
-            self.issues.append(f"{file_path}: Invalid Python syntax, cannot analyze.")
+            self.issues.append({
+                "file": file_path,
+                "issue": "Invalid Python syntax",
+                "details": "Cannot analyze due to syntax errors",
+                "severity": "error"
+            })
             return
 
         # Check for logging usage in critical functions or error handling
@@ -46,7 +61,12 @@ class LoggingMonitorChecker:
                                 if isinstance(body_node.func.value, ast.Name) and body_node.func.value.id == 'logging':
                                     log_found = True
                     if not log_found:
-                        self.issues.append(f"{file_path}: Function '{node.name}' lacks logging for critical operation.")
+                        self.issues.append({
+                            "file": file_path,
+                            "issue": "Critical function lacks logging",
+                            "details": f"Function '{node.name}'",
+                            "severity": "warning"
+                        })
 
             # Check for try-except blocks without logging
             if isinstance(node, ast.Try):
@@ -58,16 +78,30 @@ class LoggingMonitorChecker:
                                 if isinstance(handler_node.func.value, ast.Name) and handler_node.func.value.id == 'logging':
                                     has_logging_in_except = True
                 if not has_logging_in_except:
-                    self.issues.append(f"{file_path}: Try-except block at line {node.lineno} lacks exception logging.")
+                    self.issues.append({
+                        "file": file_path,
+                        "issue": "Try-except block lacks exception logging",
+                        "details": f"At line {node.lineno}",
+                        "severity": "warning"
+                    })
 
         # Check for monitoring library imports
         has_monitoring = any(lib in content for lib in self.monitoring_libs)
         if not has_monitoring:
-            self.issues.append(f"{file_path}: No monitoring libraries (e.g., Prometheus, StatsD) detected.")
+            self.issues.append({
+                "file": file_path,
+                "issue": "No monitoring libraries detected",
+                "details": "Consider adding Prometheus, StatsD, or OpenTelemetry",
+                "severity": "info"
+            })
 
     def scan_directory(self):
         if not os.path.isdir(self.directory):
-            self.issues.append(f"{self.directory}: Invalid directory path.")
+            self.issues.append({
+                "file": self.directory,
+                "issue": "Invalid directory path",
+                "severity": "error"
+            })
             return
 
         python_files_found = False
@@ -79,15 +113,33 @@ class LoggingMonitorChecker:
                     self.check_file(file_path)
 
         if not python_files_found:
-            self.issues.append(f"{self.directory}: No Python files found in the directory.")
+            self.issues.append({
+                "file": self.directory,
+                "issue": "No Python files found",
+                "severity": "error"
+            })
 
-    def report(self):
+    def generate_report(self):
+        report = {
+            "directory": self.directory,
+            "files_scanned": len([issue for issue in self.issues if issue["file"] != self.directory]),
+            "issues_found": len(self.issues),
+            "issues": self.issues,
+            "summary": {
+                "error": len([issue for issue in self.issues if issue["severity"] == "error"]),
+                "warning": len([issue for issue in self.issues if issue["severity"] == "warning"]),
+                "info": len([issue for issue in self.issues if issue["severity"] == "info"])
+            }
+        }
+        
         if not self.issues:
-            print("No issues found. Logging and monitoring appear adequate.")
+            report["status"] = "success"
+            report["message"] = "No issues found. Logging and monitoring appear adequate."
         else:
-            print("Insufficient logging and monitoring issues found:")
-            for issue in self.issues:
-                print(f"- {issue}")
+            report["status"] = "issues_found"
+            report["message"] = "Insufficient logging and monitoring issues found."
+        
+        return report
 
 def main():
     # Prompt user for directory path
@@ -97,7 +149,8 @@ def main():
     # Create checker instance and run analysis
     checker = LoggingMonitorChecker(directory)
     checker.scan_directory()
-    checker.report()
+    report = checker.generate_report()
+    print(json.dumps(report, indent=4))
 
 if __name__ == "__main__":
     main()

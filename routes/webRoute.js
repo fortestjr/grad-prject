@@ -3,11 +3,12 @@ import express from "express"
 import upload from "../middleware/upload.js";
 
 import {
-    SSRFScanController , webConfigScanController , vlunController , cryptoScanController , designCheckerController
+    SSRFScanController , webConfigScanController , vlunController , cryptoScanController , designCheckerController ,
+    softwareIntegrityController , loggingFailureController , identifyFailureController
 } from "../controller/webController.js"
-import { config } from "dotenv";
+import { config } from "dotenv"
 
-const router = express.Router();
+const router = express.Router()
 
 // SSRF Scanning
 router.post("/ssrf", SSRFScanController)
@@ -17,6 +18,9 @@ router.post("/webconfig", webConfigScanController)
 router.post("/vlun", upload.single("file"), vlunController)
 router.post("/crypto" , cryptoScanController)
 router.post("/design-checker" , designCheckerController)
+router.post("/integrity" , softwareIntegrityController)
+router.post("/logging-failure" , loggingFailureController)
+router.post("/identify-failure" , identifyFailureController)
 
 
 // Additional routes can be added here as needed

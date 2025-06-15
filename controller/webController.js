@@ -137,13 +137,77 @@ const designCheckerController =  async (req, res) => {
     }
 }
 
+const softwareIntegrityController = async (req, res) => {
+    try {
+        // take a json file in the request body
+        const { file } = req.body
+        if(!file){
+            return res.status(400).send('File parameter is required')
+        }
+        console.log(`Scanning file: ${file}`)
+        const filePath = file.path // Full path to uploaded file
+        const pythonService = new PythonService()
+        const toolOutput = await pythonService.executeScript('software-integrity', [filePath])
+        
+        res.setHeader('Content-Type', 'application/json')
+        return res.status(200).json({result : JSON.parse(toolOutput)})
+    }catch(error){
+        console.log('Software Integrity Scan Failed' , error)
+        res.setHeader('Content-Type', 'application/json')
+        return res.status(500).json({Error: error.message})      
+    }
+
+}
+
+const loggingFailureController = async (req, res) => {
+    try {
+        // Directry path in the request body
+        const { directory } = req.body
+        if(!directory){
+            return res.status(400).send('Directory parameter is required')
+        }
+        console.log(`Scanning directory: ${directory}`)
+        const pythonService = new PythonService()
+        const toolOutput = await pythonService.executeScript('Logging Failure', [directory])
+        
+        res.setHeader('Content-Type', 'application/json')
+        return res.status(200).json({result : JSON.parse(toolOutput)})  
+    }catch(error){  
+        console.log('Logging Failure Scan Failed' , error)
+        res.setHeader('Content-Type', 'application/json')
+        return res.status(500).json({Error: error.message})      
+    }
+}
+
+const identifyFailureController = async (req, res) => {
+    try {
+        // Url is in the request body
+        const { url } = req.body
+        if(!url){
+            return res.status(400).send('Url parameter is required')
+        }
+        console.log(`Scanning url: ${url}`)
+        const pythonService = new PythonService()
+        const toolOutput = await pythonService.executeScript('Identification Failure', [url])
+        
+        res.setHeader('Content-Type', 'application/json')
+        return res.status(200).json({result : JSON.parse(toolOutput)})  
+    }catch(error){  
+        console.log('Identify Failure Scan Failed' , error)
+        res.setHeader('Content-Type', 'application/json')
+        return res.status(500).json({Error: error.message})      
+    }
+}
 // Exporting the controllers 
 export {
     SSRFScanController , 
     webConfigScanController ,
     vlunController , 
     cryptoScanController , 
-    designCheckerController
+    designCheckerController , 
+    softwareIntegrityController ,
+    loggingFailureController , 
+    identifyFailureController
 }
 
 

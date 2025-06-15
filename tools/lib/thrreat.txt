@@ -1,0 +1,46 @@
+Libraries Used:
+re
+ 
+json
+ 
+datetime
+ 
+sys
+
+----------------------------------------
+Input Format: 
+python the path  indicator
+
+IP Address (IPv4):
+
+Format: X.X.X.X where X is 0-255
+
+Example: python threat_intel.py 192.168.1.1
+
+Domain Name:
+
+Format: Standard domain format (simplified validation)
+
+Example: python threat_intel.py example.com
+
+File Hashes:
+
+MD5 (32 chars): python threat_intel.py d41d8cd98f00b204e9800998ecf8427e
+
+SHA-1 (40 chars): python threat_intel.py 5d41402abc4b2a76b9719d911017c592
+
+SHA-256 (64 chars): python threat_intel.py 9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08
+
+Malware Names (case insensitive):
+
+Example: python threat_intel.py wannacry
+
+Example: python threat_intel.py ILOVEYOU
+
+Generic Keywords (fallback for unmatched patterns):
+
+Example: python threat_intel.py suspicious_string
+
+
+
+ 

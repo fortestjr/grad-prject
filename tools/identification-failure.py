@@ -2,8 +2,8 @@ import requests
 import sys
 import argparse
 from urllib.parse import urlparse
+import json
 
-# Function to check for brute-force vulnerability
 def test_brute_force(url, usernames=["admin", "user"], passwords=["admin", "password", "123456"]):
     results = []
     session = requests.Session()
@@ -14,18 +14,17 @@ def test_brute_force(url, usernames=["admin", "user"], passwords=["admin", "pass
             try:
                 response = session.post(url, data=payload, timeout=5)
                 if response.status_code == 200 and "Welcome" in response.text:
-                    results.append(f"[VULNERABILITY] Brute-force success: {username}:{password} granted access")
+                    results.append({"type": "brute_force", "result": "VULNERABILITY", "details": f"Brute-force success: {username}:{password} granted access"})
                 elif "Too many attempts" in response.text or "Locked" in response.text:
-                    results.append("[PASS] Rate-limiting or account lockout detected")
+                    results.append({"type": "brute_force", "result": "PASS", "details": "Rate-limiting or account lockout detected"})
                     break
                 else:
-                    results.append(f"[INFO] Failed attempt: {username}:{password}")
+                    results.append({"type": "brute_force", "result": "INFO", "details": f"Failed attempt: {username}:{password}"})
             except requests.RequestException as e:
-                results.append(f"[ERROR] Request failed: {str(e)}")
+                results.append({"type": "brute_force", "result": "ERROR", "details": f"Request failed: {str(e)}"})
                 break
     return results
 
-# Function to check session cookie security
 def check_session_cookies(url):
     results = []
     session = requests.Session()
@@ -35,47 +34,59 @@ def check_session_cookies(url):
         for cookie_name, cookie_value in cookies.items():
             cookie = session.cookies[cookie_name]
             if not hasattr(cookie, 'secure') or not cookie.secure:
-                results.append(f"[VULNERABILITY] Cookie '{cookie_name}' lacks Secure flag")
+                results.append({"type": "cookie_security", "result": "VULNERABILITY", "details": f"Cookie '{cookie_name}' lacks Secure flag"})
             if not hasattr(cookie, 'httponly') or not cookie.httponly:
-                results.append(f"[VULNERABILITY] Cookie '{cookie_name}' lacks HttpOnly flag")
+                results.append({"type": "cookie_security", "result": "VULNERABILITY", "details": f"Cookie '{cookie_name}' lacks HttpOnly flag"})
         if not cookies:
-            results.append("[INFO] No session cookies found")
+            results.append({"type": "cookie_security", "result": "INFO", "details": "No session cookies found"})
     except requests.RequestException as e:
-        results.append(f"[ERROR] Failed to retrieve cookies: {str(e)}")
+        results.append({"type": "cookie_security", "result": "ERROR", "details": f"Failed to retrieve cookies: {str(e)}"})
     return results
 
-# Main function to run tests and print report to terminal
 def main():
-    # Parse command-line argument
     parser = argparse.ArgumentParser(description="Test authentication mechanism for weaknesses")
     parser.add_argument("url", help="URL of the login page (e.g., https://example.com/login)")
     args = parser.parse_args()
     
     url = args.url
     domain = urlparse(url).netloc
-    results = [f"Authentication Vulnerability Report for {url}", "="*50]
-
-    # Run tests
-    results.append("\n=== Brute-Force Test ===")
-    results.extend(test_brute_force(url))
     
-    results.append("\n=== Session Cookie Security Test ===")
-    results.extend(check_session_cookies(url))
+    output = {
+        "scan_info": {
+            "target_url": url,
+            "domain": domain
+        },
+        "tests": []
+    }
     
-    # Add recommendations
-    results.append("\n=== Recommendations ===")
-    if any("Brute-force success" in r for r in results):
-        results.append("- Implement rate-limiting or account lockout after multiple failed attempts.")
-    if any("lacks Secure flag" in r for r in results):
-        results.append("- Ensure all session cookies have the Secure flag to enforce HTTPS.")
-    if any("lacks HttpOnly flag" in r for r in results):
-        results.append("- Set HttpOnly flag on session cookies to prevent client-side script access.")
-    if not any("[VULNERABILITY]" in r for r in results):
-        results.append("- No vulnerabilities detected. Consider additional tests (e.g., SQL injection).")
+    # Run brute force test
+    brute_force_results = test_brute_force(url)
+    output["tests"].append({
+        "name": "Brute-Force Test",
+        "results": brute_force_results
+    })
     
-    # Print results to terminal
-    for result in results:
-        print(result)
+    # Run cookie security test
+    cookie_results = check_session_cookies(url)
+    output["tests"].append({
+        "name": "Session Cookie Security Test",
+        "results": cookie_results
+    })
+    
+    # Generate recommendations
+    recommendations = []
+    if any(r["result"] == "VULNERABILITY" and r["type"] == "brute_force" for r in brute_force_results):
+        recommendations.append("Implement rate-limiting or account lockout after multiple failed attempts.")
+    if any(r["result"] == "VULNERABILITY" and "Secure flag" in r["details"] for r in cookie_results):
+        recommendations.append("Ensure all session cookies have the Secure flag to enforce HTTPS.")
+    if any(r["result"] == "VULNERABILITY" and "HttpOnly flag" in r["details"] for r in cookie_results):
+        recommendations.append("Set HttpOnly flag on session cookies to prevent client-side script access.")
+    if not any(r["result"] == "VULNERABILITY" for r in brute_force_results + cookie_results):
+        recommendations.append("No vulnerabilities detected. Consider additional tests (e.g., SQL injection).")
+    
+    output["recommendations"] = recommendations
+    
+    print(json.dumps(output, indent=4))
 
 if __name__ == "__main__":
     main()
