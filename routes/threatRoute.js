@@ -13,7 +13,7 @@ const router = express.Router()
 // This route handles POST requests to the /threat endpoint
 // It uses the threatController to process the request
 // The threatController is expected to handle the logic for threat intelligence scanning
-router.post("/threat", threatController)
+router.post("/", threatController)
 
 
 

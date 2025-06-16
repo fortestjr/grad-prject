@@ -68,6 +68,7 @@ Key: file → File Upload Field
 */
 const vlunController = async (req, res) => {
     try {
+        // Check if a file was uploaded
         // Multer adds `req.file`
         if (!req.file) {
             return res.status(400).send('File is required');
@@ -81,7 +82,7 @@ const vlunController = async (req, res) => {
         args.push(filePath)
 
         const pythonService = new PythonService()
-        const toolOutput = await pythonService.executeScript('vuln', [filePath])
+        const toolOutput = await pythonService.executeScript('vuln', args)
 
         res.setHeader('Content-Type', 'application/json')
 

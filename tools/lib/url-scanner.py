@@ -2,7 +2,6 @@ import re
 import requests
 import urllib.parse
 import sys
-import json
 from requests.exceptions import RequestException, Timeout, ConnectionError
 
 class URLScanner:
@@ -91,29 +90,28 @@ def main():
     
     # Check for command-line argument
     if len(sys.argv) != 2:
-        error = {
-            "error": "Usage: python url_scanner.py <url>",
-            "example": "python url_scanner.py https://example.com"
-        }
-        print(json.dumps(error, indent=2))
+        print("Usage: python url_scanner.py <url>")
+        print("Example: python url_scanner.py https://example.com")
         sys.exit(1)
     
     url = sys.argv[1].strip()
     
     if not url:
-        error = {"error": "URL cannot be empty"}
-        print(json.dumps(error, indent=2))
+        print("Error: URL cannot be empty")
         sys.exit(1)
     
     try:
         result = scanner.scan_url(url)
-        print(json.dumps(result, indent=2))
+        print("URL Scan Result:")
+        print(f"URL: {result['url']}")
+        print(f"Suspicious: {result['is_suspicious']}")
+        print("Details:")
+        for detail in result["details"]:
+            print(f"- {detail}")
     except KeyboardInterrupt:
-        error = {"error": "Scan interrupted by user"}
-        print(json.dumps(error, indent=2))
+        print("\nScan interrupted by user.")
     except Exception as e:
-        error = {"error": f"Unexpected error in main process - {str(e)}"}
-        print(json.dumps(error, indent=2))
+        print(f"\nError: Unexpected error in main process - {str(e)}")
         sys.exit(1)
 
 if __name__ == "__main__":

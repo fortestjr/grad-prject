@@ -7,6 +7,8 @@ import {fileURLToPath} from "url"
 import errorHandler from "./middleware/errorHandler.js"
 import networkRoute from "./routes/networkRoute.js"
 import webRoute from "./routes/webRoute.js"
+import threatRoute from "./routes/threatRoute.js"
+import malwareRoute from "./routes/malwareRoute.js"
 import * as path from "path";
 import dbConnection from "./db/db.js"
 const PORT = process.env.PORT || 3000
@@ -28,6 +30,8 @@ app.use(express.json());
 app.use("/healthz" , (req , res)=>{res.send({status : "ok"})})
 app.use("/network" , networkRoute)
 app.use("/web" , webRoute)
+app.use("/threat" , threatRoute)
+app.use("/malware" , malwareRoute)
 // app.use("/signup" , signUp)
 app.use(errorHandler);
 

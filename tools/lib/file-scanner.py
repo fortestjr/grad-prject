@@ -2,7 +2,6 @@ import os
 import hashlib
 import re
 import sys
-import json
 
 class FileScanner:
     def __init__(self):
@@ -79,29 +78,29 @@ def main():
     
     # Check for command-line argument
     if len(sys.argv) != 2:
-        error = {
-            "error": "Usage: python file_scanner.py <file_path>",
-            "example": "python file_scanner.py /path/to/file.txt"
-        }
-        print(json.dumps(error, indent=2))
+        print("Usage: python file_scanner.py <file_path>")
+        print("Example: python file_scanner.py /path/to/file.txt")
         sys.exit(1)
     
     file_path = sys.argv[1].strip()
     
     if not file_path:
-        error = {"error": "File path cannot be empty"}
-        print(json.dumps(error, indent=2))
+        print("Error: File path cannot be empty")
         sys.exit(1)
     
     try:
         result = scanner.scan_file(file_path)
-        print(json.dumps(result, indent=2))
+        print("File Scan Result:")
+        print(f"File: {result['file']}")
+        print(f"Hash: {result['hash']}")
+        print(f"Suspicious: {result['is_suspicious']}")
+        print("Details:")
+        for detail in result["details"]:
+            print(f"- {detail}")
     except KeyboardInterrupt:
-        error = {"error": "Scan interrupted by user"}
-        print(json.dumps(error, indent=2))
+        print("\nScan interrupted by user.")
     except Exception as e:
-        error = {"error": f"Unexpected error in main process - {str(e)}"}
-        print(json.dumps(error, indent=2))
+        print(f"\nError: Unexpected error in main process - {str(e)}")
         sys.exit(1)
 
 if __name__ == "__main__":
