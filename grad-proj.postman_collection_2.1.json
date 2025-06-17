@@ -469,6 +469,36 @@
 					"response": []
 				},
 				{
+					"name": "logging-failure",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/home/ahmedjr/Downloads/Telegram Desktop/toools/Vulnerable Components/requirements.txt"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/web/logging-failure",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"web",
+								"logging-failure"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "SSRF Vulnerability Testing",
 					"request": {
 						"method": "POST",
@@ -522,6 +552,36 @@
 							"path": [
 								"web",
 								"vlun"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "integrity",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/home/ahmedjr/Downloads/Telegram Desktop/toools/Vulnerable Components/requirements.txt"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/web/integrity",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"web",
+								"integrity"
 							]
 						}
 					},

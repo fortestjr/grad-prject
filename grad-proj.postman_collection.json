@@ -315,6 +315,25 @@
 					"response": []
 				},
 				{
+					"name": "logging-failure",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/home/ahmedjr/Downloads/Telegram Desktop/toools/Vulnerable Components/requirements.txt"
+								}
+							]
+						},
+						"url": "http://localhost:3000/web/logging-failure"
+					},
+					"response": []
+				},
+				{
 					"name": "SSRF Vulnerability Testing",
 					"request": {
 						"method": "POST",
@@ -348,6 +367,25 @@
 							]
 						},
 						"url": "http://localhost:3000/web/vlun"
+					},
+					"response": []
+				},
+				{
+					"name": "integrity",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/home/ahmedjr/Downloads/Telegram Desktop/toools/Vulnerable Components/requirements.txt"
+								}
+							]
+						},
+						"url": "http://localhost:3000/web/integrity"
 					},
 					"response": []
 				}
