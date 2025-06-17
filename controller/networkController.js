@@ -23,12 +23,26 @@ const dnsScan = async (req, res) => {
         const pythonService = new PythonService();
         const rawOutput = await pythonService.executeScript('DNS Hostname Scanning', [domain])
         
-        res.setHeader('Content-Type', 'text/plain');
-        return res.send(rawOutput);
+//         res.setHeader('Content-Type', 'text/plain');
+//         return res.send(rawOutput);
+//     } catch (error) {
+//         console.error('DNS scan failed:', error);
+//         res.setHeader('Content-Type', 'text/plain');
+//         return res.status(500).send(`Error: ${error.message}`);
+//     }
+// };
+let jsonResponse;
+        try {
+            jsonResponse = JSON.parse(rawOutput);
+        } catch (error) {
+            console.error('Failed to parse raw output into JSON:', error);
+            return res.status(500).json({ error: 'Failed to parse script output into JSON' });
+        }
+
+        return res.json(jsonResponse);
     } catch (error) {
-        console.error('DNS scan failed:', error);
-        res.setHeader('Content-Type', 'text/plain');
-        return res.status(500).send(`Error: ${error.message}`);
+        console.error('DNS Hostname Scanning failed:', error);
+        return res.status(500).json({ error: error.message });
     }
 };
 
@@ -38,7 +52,9 @@ ex:-python script.py google.com tcp 80,443,22
 */
 const firewallTest = async (req, res) => {
     try {
-        const { target, protocol, ports } = req.body || req.query
+        const target = req.body.target || req.query.target;
+        const protocol = req.body.protocol || req.query.protocol;
+        const ports = req.body.ports || req.query.ports;
         
         if (!target || !protocol || !ports) {
             return res.status(400).send('Target, protocol, and ports parameters are required');
@@ -47,14 +63,29 @@ const firewallTest = async (req, res) => {
         const pythonService = new PythonService();
         const rawOutput = await pythonService.executeScript('Firewall and ACL Testing', [target, protocol, ports]);
         
-        res.setHeader('Content-Type', 'text/plain');
-        return res.send(rawOutput);
+//         res.setHeader('Content-Type', 'text/plain');
+//         return res.send(rawOutput);
+//     } catch (error) {
+//         console.error('Firewall test failed:', error);
+//         res.setHeader('Content-Type', 'text/plain');
+//         return res.status(500).send(`Error: ${error.message}`);
+//     }
+// };
+let jsonResponse;
+        try {
+            jsonResponse = JSON.parse(rawOutput);
+        } catch (error) {
+            console.error('Failed to parse raw output into JSON:', error);
+            return res.status(500).json({ error: 'Failed to parse script output into JSON' });
+        }
+
+        return res.json(jsonResponse);
     } catch (error) {
-        console.error('Firewall test failed:', error);
-        res.setHeader('Content-Type', 'text/plain');
-        return res.status(500).send(`Error: ${error.message}`);
+        console.error('Firewall and ACL Testing failed:', error);
+        return res.status(500).json({ error: error.message });
     }
 };
+
 
 // input :_ target ip range <CIDR_RANGE> , ex:-python network_scanner.py 192.168.1.0/24
 const ipScan = async (req, res) => {
@@ -83,29 +114,44 @@ const ipScan = async (req, res) => {
 
 const portScan = async (req, res) => {
     try {
-        const { target, range } = req.body || req.query
-        console.log(req.query)
-        
+        const target = req.body?.target || req.query?.target;
+        const range = req.body?.range || req.query?.range;
+        console.log(req.query);
+
         if (!target || !range) {
             return res.status(400).send('Target and range parameters are required');
         }
 
         const pythonService = new PythonService();
         const rawOutput = await pythonService.executeScript('Port Scanning', [target, range]);
-        
-        res.setHeader('Content-Type', 'text/plain');
-        return res.send(rawOutput);
+
+        let jsonResponse;
+        try {
+            // Attempt to extract JSON substring if extra output is present
+            const firstBrace = rawOutput.indexOf('{');
+            const lastBrace = rawOutput.lastIndexOf('}');
+            if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+                const jsonString = rawOutput.substring(firstBrace, lastBrace + 1);
+                jsonResponse = JSON.parse(jsonString);
+            } else {
+                throw new Error('No valid JSON object found in script output');
+            }
+        } catch (error) {
+            console.error('Failed to parse raw output into JSON:', error);
+            return res.status(500).json({ error: 'Failed to parse script output into JSON' });
+        }
+
+        return res.json(jsonResponse);
     } catch (error) {
         console.error('Port scan failed:', error);
-        res.setHeader('Content-Type', 'text/plain');
-        return res.status(500).send(`Error: ${error.message}`);
+        return res.status(500).json({ error: error.message });
     }
 };
 
 // input :- ip or domain 
 const protocolScan = async (req, res) => {
     try {
-        const { target } = req.body || req.query;
+        const target  = req.body.target || req.query.target;
         
         if (!target) {
             return res.status(400).send('Target parameter is required');
@@ -114,14 +160,30 @@ const protocolScan = async (req, res) => {
         const pythonService = new PythonService();
         const rawOutput = await pythonService.executeScript('Protocol Analysis', [target]);
         
-        res.setHeader('Content-Type', 'text/plain');
-        return res.send(rawOutput);
+        
+//         res.setHeader('Content-Type', 'text/plain');
+//         return res.send(rawOutput);
+//     } catch (error) {
+//         console.error('Protocol scan failed:', error);
+//         res.setHeader('Content-Type', 'text/plain');
+//         return res.status(500).send(`Error: ${error.message}`);
+//     }
+// };
+        let jsonResponse;
+        try {
+            jsonResponse = JSON.parse(rawOutput);
+        } catch (error) {
+            console.error('Failed to parse raw output into JSON:', error);
+            return res.status(500).json({ error: 'Failed to parse script output into JSON' });
+        }
+
+        return res.json(jsonResponse);
     } catch (error) {
-        console.error('Protocol scan failed:', error);
-        res.setHeader('Content-Type', 'text/plain');
-        return res.status(500).send(`Error: ${error.message}`);
+        console.error('Protocol Scan failed:', error);
+        return res.status(500).json({ error: error.message });
     }
 };
+
 
 /*format:- python service_scanner.py <target>
 format 2:- python service_scanner.py <target> --version-detection
@@ -134,7 +196,8 @@ input 2 :-
 
 const serviceDetect = async (req, res) => {
     try {
-        const { target, versionDetection } = req.body || req.query
+        const target  = req.body.target || req.query.target
+        const versionDetection = req.body.versionDetection || req.query.versionDetection
 
         if (!target) {
             return res.status(400).send('Target parameter is required');
@@ -148,14 +211,28 @@ const serviceDetect = async (req, res) => {
         const pythonService = new PythonService();
         const rawOutput = await pythonService.executeScript('Service Detection', args)
         
-        res.setHeader('Content-Type', 'text/plain');
-        return res.send(rawOutput);
+        let jsonResponse;
+        try {
+            jsonResponse = JSON.parse(rawOutput);
+        } catch (error) {
+            console.error('Failed to parse raw output into JSON:', error);
+            return res.status(500).json({ error: 'Failed to parse script output into JSON' });
+        }
+
+        return res.json(jsonResponse);
     } catch (error) {
         console.error('Service detection failed:', error);
-        res.setHeader('Content-Type', 'text/plain');
-        return res.status(500).send(`Error: ${error.message}`);
+        return res.status(500).json({ error: error.message });
     }
 };
+//         res.setHeader('Content-Type', 'text/plain');
+//         return res.send(rawOutput);
+//     } catch (error) {
+//         console.error('Service detection failed:', error);
+//         res.setHeader('Content-Type', 'text/plain');
+//         return res.status(500).send(`Error: ${error.message}`);
+//     }
+// };
 
 /*
 format:- python segmentation_scanner.py <subnet> <vlan_id>
@@ -163,7 +240,8 @@ ex:-python segmentation_scanner.py 192.168.1.0/24 10
 input :- subnet or vlan identifier */
 const subnetScan = async (req, res) => {
     try {
-        const { subnet, vlan } = req.body || req.query
+        const subnet = req.body.subnet || req.query.subnet
+        const vlan = req.body.vlan || req.query.vlan
         
         if (!subnet || !vlan) {
             return res.status(400).send('Subnet and VLAN parameters are required');
@@ -183,7 +261,8 @@ const subnetScan = async (req, res) => {
 
 const latencyTest = async (req, res) => {
     try {
-        const { target, count } = req.body || req.query
+        const target = req.body?.target || req.query?.target;
+        const count = req.body?.count || req.query?.count;
         
         if (!target) {
             return res.status(400).send('Target parameter is required');

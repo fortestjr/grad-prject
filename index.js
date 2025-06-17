@@ -10,6 +10,7 @@ import webRoute from "./routes/webRoute.js"
 import threatRoute from "./routes/threatRoute.js"
 import malwareRoute from "./routes/malwareRoute.js"
 import * as path from "path";
+import cors from "cors"
 import dbConnection from "./db/db.js"
 const PORT = process.env.PORT || 3000
 const app = express()
@@ -26,6 +27,10 @@ app.use(express.json());
 (async () => {
     const db = await dbConnection()    
 })()
+
+app.use(cors({
+    origin: 'http://localhost:3001', 
+}))
 
 app.use("/healthz" , (req , res)=>{res.send({status : "ok"})})
 app.use("/network" , networkRoute)
