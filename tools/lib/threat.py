@@ -360,35 +360,93 @@ class ThreatIntelligenceTool:
         }
 
 def display_results(analysis):
-    """Display analysis results in JSON format"""
-    print(json.dumps(analysis, indent=2))
+    """Display analysis results with rich formatting"""
+    print("\n" + "="*80)
+    print(f"🔎 THREAT INTELLIGENCE REPORT - {analysis['timestamp']}")
+    print("="*80)
+    
+    print(f"\n📌 Indicator: {analysis['indicator']}")
+    print(f"🔧 Type: {analysis['type'].upper()}")
+    
+    if 'error' in analysis:
+        print(f"\n❌ ERROR: {analysis['error']}")
+        return
+    
+    for source, data in analysis['results'].items():
+        print("\n" + "-"*80)
+        print(f"🛡️ {source.upper()} ANALYSIS")
+        print("-"*80)
+        
+        if source == 'malware_info':
+            print(f"\n📛 Malware Name: {data.get('name', 'Unknown')}")
+            print(f"📋 Type: {data.get('type', 'Unknown')}")
+            
+            if 'warning' in data:
+                print(f"\n⚠️ {data['warning']}")
+                continue
+                
+            print(f"\n📝 Description:\n{data.get('description', 'No description available')}")
+            
+            if 'aliases' in data and data['aliases']:
+                print(f"\n🏷️ Also Known As: {', '.join(data['aliases'])}")
+            
+            print(f"\n📅 First Seen: {data.get('first_seen', 'Unknown')}")
+            print(f"🎯 Targets: {', '.join(data.get('targets', ['Various']))}")
+            
+            if 'impact' in data:
+                print(f"\n💥 Impact: {data['impact']}")
+            
+            if 'mitre_att&ck' in data:
+                print("\n⚔️ MITRE ATT&CK Techniques:")
+                for technique in data['mitre_att&ck']:
+                    print(f"- {technique}")
+            
+            if 'references' in data:
+                print("\n📚 References:")
+                for ref in data['references']:
+                    print(f"- {ref}")
+        else:
+            if isinstance(data, dict):
+                for key, value in data.items():
+                    if isinstance(value, (list, dict)):
+                        print(f"\n{key.replace('_', ' ').title()}:")
+                        print(json.dumps(value, indent=2))
+                    else:
+                        print(f"{key.replace('_', ' ').title()}: {value}")
+            else:
+                print(data)
 
 def main():
     """Main interactive function"""
+    print("""
+    ████████╗██╗  ██╗██████╗ ███████╗ █████╗ ████████╗
+    ╚══██╔══╝██║  ██║██╔══██╗██╔════╝██╔══██╗╚══██╔══╝
+       ██║   ███████║██████╔╝█████╗  ███████║   ██║   
+       ██║   ██╔══██║██╔══██╗██╔══╝  ██╔══██║   ██║   
+       ██║   ██║  ██║██║  ██║███████╗██║  ██║   ██║   
+       ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝   ╚═╝   
+    """)
+    print("THREAT INTELLIGENCE ANALYSIS TOOL")
+    print("="*80)
+    
     # Check if input was provided
     if len(sys.argv) < 2:
-        print(json.dumps({
-            "error": "Please provide a threat indicator to analyze",
-            "usage": "python threat_intel.py <indicator>",
-            "examples": [
-                "python threat_intel.py 1.1.1.1",
-                "python threat_intel.py wannacry"
-            ]
-        }, indent=2))
+        print("Error: Please provide a threat indicator to analyze")
+        print("Usage: python threat_intel.py <indicator>")
+        print("Example: python threat_intel.py 1.1.1.1")
+        print("Example: python threat_intel.py wannacry")
         sys.exit(1)
     
     indicator = ' '.join(sys.argv[1:])
     tool = ThreatIntelligenceTool()
     
+    print(f"\nAnalyzing: {indicator}...")
+    
     try:
         analysis = tool.analyze_threat(indicator)
         display_results(analysis)
     except Exception as e:
-        print(json.dumps({
-            "error": f"An error occurred during analysis: {str(e)}",
-            "indicator": indicator,
-            "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        }, indent=2))
+        print(f"\n❌ An error occurred during analysis: {str(e)}")
         sys.exit(1)
 
 if __name__ == "__main__":
