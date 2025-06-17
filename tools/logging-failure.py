@@ -1,156 +1,142 @@
+#!/usr/bin/env python3
+import json
+import sys
 import os
 import re
-import ast
-import json
+from datetime import datetime
+from typing import Dict, List, Any, Optional
+import stat
+import hashlib
 
-class LoggingMonitorChecker:
-    def __init__(self, directory):
-        self.directory = directory
-        self.issues = []
-        self.logging_import_pattern = re.compile(r'import\s+logging\b')
-        self.log_usage_pattern = re.compile(r'\blogging\.(debug|info|warning|error|exception)\b')
-        self.critical_functions = [
-            'login', 'authenticate', 'authorize', 'password', 'session',
-            'create_user', 'delete_user', 'update_user', 'access_resource'
-        ]
-        self.monitoring_libs = ['prometheus_client', 'statsd', 'opentelemetry']
-
-    def check_file(self, file_path):
-        try:
-            with open(file_path, 'r', encoding='utf-8') as file:
-                content = file.read()
-        except Exception as e:
-            self.issues.append({
-                "file": file_path,
-                "issue": "Unable to read file",
-                "details": str(e),
-                "severity": "error"
-            })
-            return
-
-        # Check for logging module import
-        has_logging_import = bool(self.logging_import_pattern.search(content))
-        if not has_logging_import:
-            self.issues.append({
-                "file": file_path,
-                "issue": "No logging module imported",
-                "severity": "warning"
-            })
-
-        # Parse the file to analyze its AST
-        try:
-            tree = ast.parse(content)
-        except SyntaxError:
-            self.issues.append({
-                "file": file_path,
-                "issue": "Invalid Python syntax",
-                "details": "Cannot analyze due to syntax errors",
-                "severity": "error"
-            })
-            return
-
-        # Check for logging usage in critical functions or error handling
-        for node in ast.walk(tree):
-            # Check function definitions for critical operations
-            if isinstance(node, ast.FunctionDef):
-                if any(keyword in node.name.lower() for keyword in self.critical_functions):
-                    log_found = False
-                    for body_node in ast.walk(node):
-                        if isinstance(body_node, ast.Call) and isinstance(body_node.func, ast.Attribute):
-                            if body_node.func.attr in ('debug', 'info', 'warning', 'error', 'exception'):
-                                if isinstance(body_node.func.value, ast.Name) and body_node.func.value.id == 'logging':
-                                    log_found = True
-                    if not log_found:
-                        self.issues.append({
-                            "file": file_path,
-                            "issue": "Critical function lacks logging",
-                            "details": f"Function '{node.name}'",
-                            "severity": "warning"
-                        })
-
-            # Check for try-except blocks without logging
-            if isinstance(node, ast.Try):
-                has_logging_in_except = False
-                for handler in node.handlers:
-                    for handler_node in ast.walk(handler):
-                        if isinstance(handler_node, ast.Call) and isinstance(handler_node.func, ast.Attribute):
-                            if handler_node.func.attr in ('debug', 'info', 'warning', 'error', 'exception'):
-                                if isinstance(handler_node.func.value, ast.Name) and handler_node.func.value.id == 'logging':
-                                    has_logging_in_except = True
-                if not has_logging_in_except:
-                    self.issues.append({
-                        "file": file_path,
-                        "issue": "Try-except block lacks exception logging",
-                        "details": f"At line {node.lineno}",
-                        "severity": "warning"
-                    })
-
-        # Check for monitoring library imports
-        has_monitoring = any(lib in content for lib in self.monitoring_libs)
-        if not has_monitoring:
-            self.issues.append({
-                "file": file_path,
-                "issue": "No monitoring libraries detected",
-                "details": "Consider adding Prometheus, StatsD, or OpenTelemetry",
-                "severity": "info"
-            })
-
-    def scan_directory(self):
-        if not os.path.isdir(self.directory):
-            self.issues.append({
-                "file": self.directory,
-                "issue": "Invalid directory path",
-                "severity": "error"
-            })
-            return
-
-        python_files_found = False
-        for root, _, files in os.walk(self.directory):
-            for file in files:
-                if file.endswith('.py'):
-                    python_files_found = True
-                    file_path = os.path.join(root, file)
-                    self.check_file(file_path)
-
-        if not python_files_found:
-            self.issues.append({
-                "file": self.directory,
-                "issue": "No Python files found",
-                "severity": "error"
-            })
-
-    def generate_report(self):
-        report = {
-            "directory": self.directory,
-            "files_scanned": len([issue for issue in self.issues if issue["file"] != self.directory]),
-            "issues_found": len(self.issues),
-            "issues": self.issues,
+class LoggingFailureAnalyzer:
+    """Advanced analyzer for insufficient logging in a single log file."""
+    
+    def __init__(self, file_path: str):
+        self.file_path = file_path
+        self.results: Dict[str, Any] = {
+            "meta": {
+                "analyzer": "LoggingFailures",
+                "version": "1.2.0",
+                "timestamp": datetime.utcnow().isoformat(),
+                "file_analyzed": file_path,
+                "file_size": os.path.getsize(file_path) if os.path.exists(file_path) else 0,
+            },
+            "findings": [],
             "summary": {
-                "error": len([issue for issue in self.issues if issue["severity"] == "error"]),
-                "warning": len([issue for issue in self.issues if issue["severity"] == "warning"]),
-                "info": len([issue for issue in self.issues if issue["severity"] == "info"])
+                "critical": 0,
+                "high": 0,
+                "medium": 0,
+                "low": 0,
+                "info": 0,
+                "total_findings": 0
             }
         }
         
-        if not self.issues:
-            report["status"] = "success"
-            report["message"] = "No issues found. Logging and monitoring appear adequate."
-        else:
-            report["status"] = "issues_found"
-            report["message"] = "Insufficient logging and monitoring issues found."
+    def analyze(self) -> Dict[str, Any]:
+        """Run all checks on the specified log file."""
+        if not os.path.exists(self.file_path):
+            self._add_finding("FileNotFound", f"Log file not found: {self.file_path}", "high")
+            return self.results
+
+        try:
+            self._check_permissions()
+            self._check_sensitive_data()
+            self._check_integrity()
+            self._check_retention()
+            self._check_verbosity()
+            self._generate_summary()
+        except Exception as e:
+            self._add_finding("AnalysisError", f"Analysis failed: {str(e)}", "high")
         
-        return report
+        return self.results
+    
+    def _add_finding(self, id: str, description: str, severity: str, details: Optional[Dict] = None) -> None:
+        """Add a finding to the results."""
+        finding = {
+            "id": id,
+            "description": description,
+            "severity": severity,
+            "timestamp": datetime.utcnow().isoformat(),
+            "details": details or {}
+        }
+        self.results["findings"].append(finding)
+        self.results["summary"][severity] += 1
+    
+    def _generate_summary(self) -> None:
+        """Update total findings count."""
+        self.results["summary"]["total_findings"] = len(self.results["findings"])
+    
+    def _check_permissions(self) -> None:
+        """Check if log file permissions are insecure."""
+        st = os.stat(self.file_path)
+        mode = st.st_mode
+        issues = []
+
+        if mode & stat.S_IROTH:
+            issues.append("World-readable (others can read)")
+        if mode & stat.S_IWOTH:
+            issues.append("World-writable (others can modify)")
+        if st.st_uid == 0 and not self.file_path.startswith('/var/log/'):
+            issues.append("Owned by root outside system log dir")
+
+        if issues:
+            self._add_finding(
+                "InsecurePermissions",
+                "File has insecure permissions",
+                "high",
+                {"issues": issues, "mode": oct(mode)}
+            )
+    
+    def _check_sensitive_data(self) -> None:
+        """Check for passwords, tokens, etc. in logs."""
+        sensitive_patterns = [
+            r'password[=:]\s*\S+',
+            r'api[-_]?key[=:]\s*\S+',
+            r'secret[=:]\s*\S+',
+            r'\b\d{3}[- ]?\d{2}[- ]?\d{4}\b'  # SSN
+        ]
+        matches = []
+
+        with open(self.file_path, 'r', errors='ignore') as f:
+            for line in f:
+                for pattern in sensitive_patterns:
+                    if re.search(pattern, line, re.IGNORECASE):
+                        matches.append(f"Sensitive pattern '{pattern}' found")
+                        break  # Avoid duplicate matches per line
+
+        if matches:
+            self._add_finding(
+                "SensitiveDataExposed",
+                "Sensitive data detected in logs",
+                "critical",
+                {"matches": matches[:5]}  # Show first 5 matches only
+            )
+    
+    def _check_integrity(self) -> None:
+        """Check if logs are tamper-proof."""
+        try:
+            # Check if file is append-only (a typical secure setting)
+            st = os.stat(self.file_path)
+            if not st.st_mode & stat.S_IAPPEND:
+                self._add_finding(
+                    "NoAppendOnlyFlag",
+                    "File is not append-only (can be truncated/modified)",
+                    "medium"
+                )
+        except Exception as e:
+            self._add_finding("IntegrityCheckError", str(e), "medium")
 
 def main():
-    # Prompt user for directory path
-    print("Please enter the path to the directory containing Python code to analyze:")
-    directory = input().strip()
+    if len(sys.argv) != 2:
+        print(json.dumps({
+            "error": "Usage: python logging_failures.py <file_path>",
+            "example": "python logging_failures.py /var/log/auth.log"
+        }, indent=2))
+        sys.exit(1)
     
-    # Create checker instance and run analysis
-    checker = LoggingMonitorChecker(directory)
-    checker.scan_directory()
-    report = checker.generate_report()
-    print(json.dumps(report, indent=4))
+    analyzer = LoggingFailureAnalyzer(sys.argv[1])
+    results = analyzer.analyze()
+    print(json.dumps(results, indent=2))
 
 if __name__ == "__main__":
     main()

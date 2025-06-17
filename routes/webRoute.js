@@ -18,8 +18,8 @@ router.post("/webconfig", webConfigScanController)
 router.post("/vlun", upload.single("file"), vlunController)
 router.post("/crypto" , cryptoScanController)
 router.post("/design-checker" , designCheckerController)
-router.post("/integrity" , softwareIntegrityController)
-router.post("/logging-failure" , loggingFailureController)
+router.post("/integrity" , upload.single("file") , softwareIntegrityController)
+router.post("/logging-failure" , upload.single("file") , loggingFailureController)
 router.post("/identify-failure" , identifyFailureController)
 
 
