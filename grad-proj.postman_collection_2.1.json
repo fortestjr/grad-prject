@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "7f13cdcd-1881-4089-ab3b-304d49fb44ab",
 		"name": "grad-proj",
-		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "28936700"
 	},
 	"item": [
@@ -26,7 +26,18 @@
 								}
 							}
 						},
-						"url": "http://localhost:3000/network/ipscan"
+						"url": {
+							"raw": "http://localhost:3000/network/ipscan",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"network",
+								"ipscan"
+							]
+						}
 					},
 					"response": []
 				},
@@ -47,7 +58,18 @@
 								}
 							}
 						},
-						"url": "http://localhost:3000/network/firewall"
+						"url": {
+							"raw": "http://localhost:3000/network/firewall",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"network",
+								"firewall"
+							]
+						}
 					},
 					"response": []
 				},
@@ -80,7 +102,18 @@
 								}
 							}
 						},
-						"url": "http://localhost:3000/network/dns"
+						"url": {
+							"raw": "http://localhost:3000/network/dns",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"network",
+								"dns"
+							]
+						}
 					},
 					"response": [
 						{
@@ -88,7 +121,18 @@
 							"originalRequest": {
 								"method": "GET",
 								"header": [],
-								"url": "https://api.getpostman.com/me"
+								"url": {
+									"raw": "https://api.getpostman.com/me",
+									"protocol": "https",
+									"host": [
+										"api",
+										"getpostman",
+										"com"
+									],
+									"path": [
+										"me"
+									]
+								}
 							},
 							"status": "OK",
 							"code": 200,
@@ -112,7 +156,18 @@
 							"originalRequest": {
 								"method": "GET",
 								"header": [],
-								"url": "https://api.getpostman.com/me"
+								"url": {
+									"raw": "https://api.getpostman.com/me",
+									"protocol": "https",
+									"host": [
+										"api",
+										"getpostman",
+										"com"
+									],
+									"path": [
+										"me"
+									]
+								}
 							},
 							"status": "Too Many Requests",
 							"code": 429,
@@ -149,7 +204,18 @@
 								}
 							}
 						},
-						"url": "http://localhost:3000/network/portscan"
+						"url": {
+							"raw": "http://localhost:3000/network/portscan",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"network",
+								"portscan"
+							]
+						}
 					},
 					"response": []
 				},
@@ -170,7 +236,18 @@
 								}
 							}
 						},
-						"url": "http://localhost:3000/network/protocol"
+						"url": {
+							"raw": "http://localhost:3000/network/protocol",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"network",
+								"protocol"
+							]
+						}
 					},
 					"response": []
 				},
@@ -191,7 +268,18 @@
 								}
 							}
 						},
-						"url": "http://localhost:3000/network/subnet"
+						"url": {
+							"raw": "http://localhost:3000/network/subnet",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"network",
+								"subnet"
+							]
+						}
 					},
 					"response": []
 				},
@@ -212,7 +300,18 @@
 								}
 							}
 						},
-						"url": "http://localhost:3000/network/services"
+						"url": {
+							"raw": "http://localhost:3000/network/services",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"network",
+								"services"
+							]
+						}
 					},
 					"response": []
 				},
@@ -233,7 +332,18 @@
 								}
 							}
 						},
-						"url": "http://localhost:3000/network/latency"
+						"url": {
+							"raw": "http://localhost:3000/network/latency",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"network",
+								"latency"
+							]
+						}
 					},
 					"response": []
 				}
@@ -256,7 +366,18 @@
 								}
 							}
 						},
-						"url": "http://localhost:3000/web/webconfig"
+						"url": {
+							"raw": "http://localhost:3000/web/webconfig",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"web",
+								"webconfig"
+							]
+						}
 					},
 					"response": []
 				},
@@ -274,7 +395,18 @@
 								}
 							}
 						},
-						"url": "http://localhost:3000/web/crypto"
+						"url": {
+							"raw": "http://localhost:3000/web/crypto",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"web",
+								"crypto"
+							]
+						}
 					},
 					"response": []
 				},
@@ -292,7 +424,18 @@
 								}
 							}
 						},
-						"url": "http://localhost:3000/web/design-checker"
+						"url": {
+							"raw": "http://localhost:3000/web/design-checker",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"web",
+								"design-checker"
+							]
+						}
 					},
 					"response": []
 				},
@@ -310,7 +453,18 @@
 								}
 							}
 						},
-						"url": "http://localhost:3000/web/identify-failure"
+						"url": {
+							"raw": "http://localhost:3000/web/identify-failure",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"web",
+								"identify-failure"
+							]
+						}
 					},
 					"response": []
 				},
@@ -328,7 +482,18 @@
 								}
 							}
 						},
-						"url": "http://localhost:3000/web/ssrf"
+						"url": {
+							"raw": "http://localhost:3000/web/ssrf",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"web",
+								"ssrf"
+							]
+						}
 					},
 					"response": []
 				},
@@ -347,7 +512,18 @@
 								}
 							]
 						},
-						"url": "http://localhost:3000/web/vlun"
+						"url": {
+							"raw": "http://localhost:3000/web/vlun",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"web",
+								"vlun"
+							]
+						}
 					},
 					"response": []
 				}
@@ -370,7 +546,17 @@
 								}
 							}
 						},
-						"url": "http://localhost:3000/threat"
+						"url": {
+							"raw": "http://localhost:3000/threat",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"threat"
+							]
+						}
 					},
 					"response": []
 				}
@@ -393,7 +579,18 @@
 								}
 							}
 						},
-						"url": "http://localhost:3000/malware/malwareurl"
+						"url": {
+							"raw": "http://localhost:3000/malware/malwareurl",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"malware",
+								"malwareurl"
+							]
+						}
 					},
 					"response": []
 				},
@@ -412,7 +609,18 @@
 								}
 							]
 						},
-						"url": "http://localhost:3000/malware/malwarefile"
+						"url": {
+							"raw": "http://localhost:3000/malware/malwarefile",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"malware",
+								"malwarefile"
+							]
+						}
 					},
 					"response": []
 				}
